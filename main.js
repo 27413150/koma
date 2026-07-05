@@ -16,10 +16,10 @@ class TitleScene extends SceneBase{
         ctx.textAlign="center";
         ctx.textBaseline="top";
         ctx.fillText("Press Space Key",canvas.width/2,2);
-        for(let i=0;i<10;i++){
-            for(let j=0;j<10;j++){
-                ctx.fillText("|",i*20+10,j*20+10);
-                ctx.fillText("--------",i*20+10,j*20+10);
+        for(let i=0;i<7;i++){
+            for(let j=0;j<7;j++){
+                ctx.fillText("|",i*35+canvas.width/3,j*35+canvas.height/6);
+                ctx.fillText("------------",i*35+canvas.width/3,j*35+canvas.height/6);
             }
         }
     }
@@ -49,7 +49,6 @@ class MemorizationScene extends SceneBase {
 }
 
 
-
 class GameScene extends SceneBase {
     constructor(){
         super();
@@ -61,12 +60,10 @@ class GameScene extends SceneBase {
             down:false,
         };
         this.goal=new Goal(120,40);
+        this.timer=0;
     }
     Start(){
-        
-
         this.keyDownHandler = (e) =>{                              //押したとき
-            console.log("回答開始");
             if(e.key == "ArrowLeft")this.input.left=true;
             if(e.key == "ArrowRight")this.input.right=true;
             if(e.key == "ArrowUp")this.input.up=true;
@@ -78,12 +75,11 @@ class GameScene extends SceneBase {
             if(e.key == "ArrowUp")this.input.up=false;
             if(e.key == "ArrowDown")this.input.down=false;
         }
-        
         window.addEventListener("keydown",this.keyDownHandler); //keyDownが実行されたかときイベント登録
         window.addEventListener("keyup",this.keyUpHandler);  //keyUpが実行されたかときイベント消去
-        
     }
     Update(elapsed){
+        this.timer+=elapsed;
         this.player.Update(this.input,elapsed);
         const playerLeft=this.player.x;
         const playerRight=this.player.x+this.player.width;
@@ -102,6 +98,7 @@ class GameScene extends SceneBase {
 
         if(Hit){
             console.log("goal");
+            SceneRequest=new ResultScene(this.timer);
         }
     }
     Render(ctx){
@@ -110,9 +107,34 @@ class GameScene extends SceneBase {
         ctx.font="32px sans-serif";
         ctx.textAlign="center";
         ctx.textBaseline="top";
-        ctx.fillText("回答開始",canvas.width/2,2);
+        ctx.fillText("回答開始" + this.timer.toFixed(2),canvas.width/2,2);
         this.player.Render(ctx);
         this.goal.Render(ctx);
+        for(let i=0;i<7;i++){
+            for(let j=0;j<7;j++){
+                ctx.fillText("|",i*35+canvas.width/3,j*35+canvas.height/6);
+                ctx.fillText("------------",i*35+canvas.width/3,j*35+canvas.height/6);
+            }
+        }
+    }
+}
+
+class ResultScene extends SceneBase{
+    constructor(timer){
+        super();
+        this.timer=timer;
+
+    }
+    Start(){}
+    Update(elapsed){}
+    Render(ctx){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle="Red";
+        ctx.font="48px sans-serif";
+        ctx.textAlign="center";
+        ctx.textBaseline="top";
+        ctx.fillText("Result",canvas.width/2,canvas.height/5);
+        ctx.fillText("Time:            "+ this.timer.toFixed(2),canvas.width/2,canvas.height/2+10);
     }
 }
 
@@ -123,7 +145,6 @@ class Player {
         this.width=30;
         this.height=30;
         this.speed=2;
-        
     }
     Start(){}
     Update(elapsed){
